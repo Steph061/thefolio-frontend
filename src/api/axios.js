@@ -3,7 +3,7 @@ import axios from 'axios';
 
 // Use Render backend URL for production, localhost for development
 const baseURL = process.env.NODE_ENV === 'production'
-  ? 'https://thefolio-backend.onrender.com/api'  // Replace with your actual Render URL
+  ? 'https://thefolio-backend-81uo.onrender.com/api'
   : 'http://localhost:5000/api';
 
 const instance = axios.create({
