@@ -41,7 +41,7 @@ const PostPage = () => {
     setLoading(true);
     Promise.all([fetchPost(), fetchComments()])
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [fetchPost, fetchComments]);
 
   const canManagePost = user && post && (user.role === 'admin' || user.id === post.author_id);
 
