@@ -5,6 +5,7 @@ function AdminPage() {
   const [members, setMembers] = useState([]);
   const [posts, setPosts] = useState([]);
   const [messages, setMessages] = useState([]);
+  const [stats, setStats] = useState({ totalMembers: 0, activeMembers: 0, totalPosts: 0, totalMessages: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [searchMember, setSearchMember] = useState('');
@@ -18,19 +19,22 @@ function AdminPage() {
 
     try {
       console.log('Loading admin data...');
-      const [usersRes, postsRes, messagesRes] = await Promise.all([
+      const [usersRes, postsRes, messagesRes, statsRes] = await Promise.all([
         API.get('/admin/users'),
         API.get('/admin/posts'),
         API.get('/admin/messages'),
+        API.get('/admin/stats'),
       ]);
 
       console.log('Users:', usersRes.data);
       console.log('Posts:', postsRes.data);
       console.log('Messages:', messagesRes.data);
+      console.log('Stats:', statsRes.data);
 
       setMembers(usersRes.data);
       setPosts(postsRes.data);
       setMessages(messagesRes.data);
+      setStats(statsRes.data);
     } catch (err) {
       console.error('Admin API Error:', err);
       console.error('Response:', err?.response);
@@ -88,8 +92,8 @@ function AdminPage() {
           <div className="stat-icon">👥</div>
           <div className="stat-content">
             <h4>Total Members</h4>
-            <p className="stat-number">{members.length}</p>
-            <span className="stat-label">Active: {members.filter(m => m.status === 'active').length}</span>
+            <p className="stat-number">{stats.totalMembers}</p>
+            <span className="stat-label">Active: {stats.activeMembers}</span>
           </div>
         </div>
         <div 
@@ -99,7 +103,7 @@ function AdminPage() {
           <div className="stat-icon">📝</div>
           <div className="stat-content">
             <h4>Total Posts</h4>
-            <p className="stat-number">{posts.length}</p>
+            <p className="stat-number">{stats.totalPosts}</p>
             <span className="stat-label">Published: {posts.filter(p => p.status !== 'removed').length}</span>
           </div>
         </div>
@@ -110,7 +114,7 @@ function AdminPage() {
           <div className="stat-icon">💬</div>
           <div className="stat-content">
             <h4>Messages</h4>
-            <p className="stat-number">{messages.length}</p>
+            <p className="stat-number">{stats.totalMessages}</p>
             <span className="stat-label">Unreviewed</span>
           </div>
         </div>
