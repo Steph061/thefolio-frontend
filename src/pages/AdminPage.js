@@ -17,16 +17,23 @@ function AdminPage() {
     setLoading(true);
 
     try {
+      console.log('Loading admin data...');
       const [usersRes, postsRes, messagesRes] = await Promise.all([
         API.get('/admin/users'),
         API.get('/admin/posts'),
         API.get('/admin/messages'),
       ]);
 
+      console.log('Users:', usersRes.data);
+      console.log('Posts:', postsRes.data);
+      console.log('Messages:', messagesRes.data);
+
       setMembers(usersRes.data);
       setPosts(postsRes.data);
       setMessages(messagesRes.data);
     } catch (err) {
+      console.error('Admin API Error:', err);
+      console.error('Response:', err?.response);
       setError(err?.response?.data?.message || 'Unable to load admin dashboard data.');
     } finally {
       setLoading(false);
