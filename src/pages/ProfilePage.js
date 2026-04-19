@@ -13,6 +13,9 @@ function ProfilePage() {
   const [error, setError] = useState('');
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
+  const [loadingPosts, setLoadingPosts] = useState(false);
+  const [postsError, setPostsError] = useState('');
+  const [myPosts, setMyPosts] = useState([]);
   const [profilePic, setProfilePic] = useState(null);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
   const fileInputRef = useRef(null);
@@ -123,6 +126,25 @@ function ProfilePage() {
     }
   };
 
+  const loadMyPosts = async () => {
+    setPostsError('');
+    setLoadingPosts(true);
+    try {
+      const { data } = await API.get('/posts/mine');
+      setMyPosts(data);
+    } catch (err) {
+      setPostsError(err?.response?.data?.message || 'Unable to load your posts.');
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
+  useEffect(() => {
+    if (user) {
+      loadMyPosts();
+    }
+  }, [user]);
+
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -198,6 +220,33 @@ function ProfilePage() {
         <p>
           <strong>Status:</strong> {user?.status || 'active'}
         </p>
+      </section>
+
+      <section className="profile-posts">
+        <h3>My Posts</h3>
+        {loadingPosts ? (
+          <p>Loading your posts...</p>
+        ) : postsError ? (
+          <p className="error-text">{postsError}</p>
+        ) : myPosts.length === 0 ? (
+          <p>You don&apos;t have any posts yet. Start by writing one!</p>
+        ) : (
+          <div className="posts-list">
+            {myPosts.map((post) => (
+              <article key={post.id} className="post-card">
+                <h4>{post.title}</h4>
+                <p>{post.body.slice(0, 120)}{post.body.length > 120 ? '...' : ''}</p>
+                <div className="post-meta">
+                  <span>{new Date(post.created_at).toLocaleDateString()}</span>
+                  <span className={`status-badge status-${post.status || 'published'}`}>
+                    {post.status === 'removed' ? 'Removed' : 'Published'}
+                  </span>
+                </div>
+                <a href={`/post/${post.id}`} className="btn btn-secondary">View Post</a>
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       {error && <p className="error-text">{error}</p>}
